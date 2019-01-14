@@ -19,8 +19,8 @@ General information
 If there are arguments which are defined between `<>`, these might be possible arguments. Anything between `()` is added to quickly clarify what arguments are, this should **not** be included in your protocol.
 
 **EXAMPLE**: 
-|Command|Arguments|  
-|--|--|
+| Command | Arguments |  
+| -------- | -------- |
 `CONNECT`|`(supported:) <core,chat,challenge,leaderboard,security>`
 The line above means that the client could send one of the below:
  - `CONNECT`
@@ -40,8 +40,8 @@ Color and rotation encoding
 Core Protocol: Client
 ===
 These are messages which are sent by the client to the server. The server should handle these incoming messages.
-|Command|Arguments|Description| 
-|--|--|--|
+| Command | Arguments | Description | 
+| -------- | -------- | -------- |
 |`CONNECT`|`(supported:) <core,chat,challenge,leaderboard,security>` | The client sends this to the server to initiate a connection. The arguments let the server know what extra functions are implemented in the client. Everyone should at least send `CONNECT core`, as everyone has the core protocol implemented. Upon receiving this command the server should respond with the `CONNECTED` command.|
 |`SETNAME`|`name` | The name that the player wants the server to store and use. This name is then re-used in the `STARTGAME` command send by the server, to let the opponent know against which player the player is playing. The server should respond by sending `HELLO` or `ERROR`. |
 |`LOOKINGFORGAME`| `(amount of players:) <2,3,4>` | This is sent once the player wants to play a game, the client announces that the player is looking to play a game. The argument describes the amount of players the game should have, which can be an integer from 2 to 4. The server will then select opponent(s) which are also looking to play a game, and match them. The server should respond by either telling the client to `WAIT` or that a game was found (`STARTGAME`).|
@@ -57,8 +57,8 @@ These are messages which are sent by the client to the server. The server should
 Core Protocol: Server
 ===
 These are messages which are sent by the server to the client. Your client should handle these incoming messages.
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`CONNECTED`|`(supported by server:)<core,chat,challenge,leaderboard,security>`| A player has succesfully connected to the server. If anything happens, which would mean that a connection would not be succesful (e.g. the client does not tell the server that it understands the core protocol) the server should send an `ERROR`. |
 |`ERROR`|`error_code`| If an error happens the server should send this to the client. The error codes are described below. |
 |`HELLO`|`name ` |A player has set their name succesfully. We acknowledge this by sending `HELLO` followed by the name. Make sure to check for any invalid characters in names, such as a comma (which will introduce bugs in commands where the player name is used. *-thanks to Jurre for this addition*)|
@@ -74,7 +74,7 @@ Example of a game:
 ![GameExample](examplegamesd.png)
 
 Error codes
----
+---------
 ```
 0  Username is invalid or in use
 1  Connection is refused (for some reason)
@@ -91,13 +91,13 @@ Chat Protocol
 ===
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Chat Box extension.
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`INCOMINGMESSAGE`|`(message:)dGVzdA==,(from:)name`|A message has been sent to the player, this message is Base64 encoded. (Example: `test` -> `dGVzdA==`). The server checks whether this message was correctly encoded by decoding it once (and seeing if that results in errors). If it is incorrect it should give an `ERROR`. The name of the player that sent the message is appended to the end.|
 
 The following are messages which are sent by the **client to the server**. 
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`SENDMESSAGE`|`(message:)dGVzdA==,<(to:)name>`|A player wants to send a chat message to all players that are currently in the game. If this is the case, no name has to be specified. If the player wants to send a message specifically to one person, the name of that player has to be specified.   |
 
 WIP: Challenge Protocol
@@ -105,7 +105,7 @@ WIP: Challenge Protocol
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Challenge extension.
 |Command|Arguments|Description|
-|--|--|--|
+|--------|--------|--------|
 |`LOBBYPLAYERS`|`<name,name,name,...>`|The names of the players that are in the lobby.|
 |`CHALLENGED`|`(challenger:)name, <(player1:)name,(player2:)name>`|The player has been challenged by the challenger. If there is more than 1 person being challenged, their names are the second and third argument.|
 |`DENIED`|`(player1:)name, <(player2:)name,(player3:)name>`|The arguments should be in the same order as used in the `CHALLENGE` command, below.|
@@ -113,8 +113,8 @@ The following are messages which are sent by the **server to the client**. Your 
 
 
 The following are messages which are sent by the **client to the server**. 
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`LEAVELOBBY`||A player wants to leave the lobby. All challenges from the player will be revoked. (it is up to you if you decide this should also  mean that the player is `LOOKINGFORGAME`).  |
 |`JOINLOBBY`||A player wants to join a lobby, the player is no longer `LOOKINGFORGAME`. Once the player has joined the server, they will be updated on the players that are also in the lobby. They can then challenge these players.  |
 |`CHALLENGE`|`(player1:)name, <(player2:)name,(player3:)name>`|A player wants to challenge another specific player in the lobby to play a game with. (maximum of 3 other people that you can play with) A challenge can be revoked by sending `REVOKE` |
@@ -130,13 +130,13 @@ WIP: Leaderboard Protocol
 ===
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Leaderboard extension.
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`LEADERBOARD`|`BASE64(name,score,datetime),<BASE64(name,score,datetime)>,...`|An entry of the requested leaderboard. Each entry is Base64 encoded. The encoded entries are comma seperated. The datetime is a UNIX timestamp. If the player has requested a daily average, the name may be `Daily Average` and the datetime could be the current datetime, as this information is not relevant.|
 
 The following are messages which are sent by the **client to the server**. 
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`GETLEADERBOARD`|`<[top,000] [above,000,000] [below,000,000] [avgscore] [dailyavg] [dailybest]>`|Request information  from the leaderboard.
 
  - `top,5` will return the top 5 best scores
@@ -152,13 +152,13 @@ WIP: Security Protocol
 ===
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Security extension.
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`LOGINVALID`|`(message:)dGVzdA==,(from:)name`|If the password was correct, otherwise an `ERROR` is sent.|
 
 The following are messages which are sent by the **client to the server**. 
-|Command|Arguments|Description|
-|--|--|--|
+| Command | Arguments | Description |
+| -------- | -------- | -------- |
 |`LOGIN`|`name, password`|Password is encrypted with SHA256 with UTF8 as the charset. The resulting bytes are then encoded using Base64. This resembles the password.
 
 

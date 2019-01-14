@@ -24,11 +24,12 @@ If there are arguments which are defined between `<>`, these might be possible a
 | -------- | -------- |
 |`CONNECT`|`(supported:) <core,chat,challenge,leaderboard,security>` |
 
-The line above means that the client could send one of the below: 
+The line above means that the client could (for example) send one of the below: 
  - `CONNECT`
  - `CONNECT core`
  -  `CONNECT core,chat`
  - `CONNECT core,chat,challenge`
+ - `CONNECT core,leaderboard`
  - `CONNECT core,chat,challenge,leaderboard`
  - `CONNECT core,chat,challenge,leaderboard,security`
 
@@ -167,7 +168,7 @@ The following are messages which are sent by the **server to the client**. Your 
 
 | Command | Arguments | Description |
 | -------- | -------- | -------- |
-|`LOGINVALID`|`(message:)dGVzdA==,(from:)name`|If the password was correct, otherwise an `ERROR` is sent.|
+|`LOGINVALID`||If the password was correct, otherwise an `ERROR` is sent.|
 
 The following are messages which are sent by the **client to the server**. 
 

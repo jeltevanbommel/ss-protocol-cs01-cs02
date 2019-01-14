@@ -85,9 +85,11 @@ Error codes
 2  You tried to make a move, but it wasn't your turn yet
 3  The move you made was invalid, for example because the field is already used.
 4  Opponent disconnected during the game.
+5  Invalid command received (generic error).
+
 BONUS:
-5 Invalid chat message, not correctly encoded.
-6 Incorrect password.
+10 Invalid chat message, not correctly encoded.
+11 Incorrect password.
 ```
 
 

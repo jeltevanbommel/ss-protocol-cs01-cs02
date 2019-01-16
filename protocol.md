@@ -1,11 +1,34 @@
-Protocol CS1/CS2
+
+Protocol CS1/CS2 (v2.0)
 ==
 
-Current version: 1.0
+Current version: 2.0
+**PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL** 
 
 If anything is changed, the version number will be incremented. Please write this version number down, so you know whether your server/client supports everything. All changes will be noted within the changelog:
 
-    NO CHANGELOG
+    CHANGES V2.0:
+	    The rotation diagram has been updated, to properly reflect what we decided upon during the protocol session. 
+	    
+	    Challenge protocol: server->client
+		    The DENIED and REVOKED command has been changed to reflect the fact that a challenger can only have one outgoing challenge request at a time.
+		    The description for the CHALLENGED command has been changed, to show the names of everyone in a proposed game. (to make it simpler)
+	    
+	    Challenge protocol: client->server
+		    The description for the CHALLENGE command has been changed.
+		    The behaviour for denying a challenge has been determined and reflected in the challenge protocol descriptions appropriately.
+		    REVOKE no longer requires the names of the players that were challenged, as there can only be one outgoing challenge.
+	    
+	    Security protocol:
+		    A salt commmand has been added
+		    The login and password command has been splitted into two commands
+		    
+	    The WIP titles have been removed.
+	    
+	    Error codes:
+		    Several additional error codes have been added: 12 - 16
+		
+
 
 If anything is unclear about the protocol, feel free to ask me, or reach out to me via email (j.r.vanbommel@student.utwente.nl).
 
@@ -25,7 +48,7 @@ If there are arguments which are defined between `<>`, these might be possible a
 |`CONNECT`|`(supported:) <core,chat,challenge,leaderboard,security>` |
 
 The line above means that the client could (for example) send one of the below: 
- - `CONNECT`
+ - `CONNECT` (which is not valid in our protocol.)
  - `CONNECT core`
  -  `CONNECT core,chat`
  - `CONNECT core,chat,challenge`
@@ -81,6 +104,7 @@ Example of a game:
 Error codes
 ---------
 ```
+CORE:
 0  Username is invalid or in use
 1  Connection is refused (for some reason)
 2  You tried to make a move, but it wasn't your turn yet
@@ -88,9 +112,18 @@ Error codes
 4  Opponent disconnected during the game.
 5  Invalid command received (generic error).
 
-BONUS:
+CHAT:
 10 Invalid chat message, not correctly encoded.
+
+LOGIN:
 11 Incorrect password.
+12 Name does not exist.
+
+CHALLENGE PROTOCOL:
+13 Challenge is revoked. (and thus you can't accept or deny)
+14 You have already challenged someone, you need to revoke the challenge to them first.
+15 A player you tried to challenge does not exist.
+16 You tried revoking a challenge, without challenging someone.
 ```
 
 
@@ -109,7 +142,7 @@ The following are messages which are sent by the **client to the server**.
 | -------- | -------- | -------- |
 |`SENDMESSAGE`|`(message:)dGVzdA==,<(to:)name>`|A player wants to send a chat message to all players that are currently in the game. If this is the case, no name has to be specified. If the player wants to send a message specifically to one person, the name of that player has to be specified.   |
 
-WIP: Challenge Protocol
+Challenge Protocol
 ===
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Challenge extension.
@@ -117,9 +150,9 @@ The following are messages which are sent by the **server to the client**. Your 
 |Command|Arguments|Description|
 |--------|--------|--------|
 |`LOBBYPLAYERS`|`<name,name,name,...>`|The names of the players that are in the lobby.|
-|`CHALLENGED`|`(challenger:)name, <(player1:)name,(player2:)name>`|The player has been challenged by the challenger. If there is more than 1 person being challenged, their names are the second and third argument.|
-|`DENIED`|`(player1:)name, <(player2:)name,(player3:)name>`|The arguments should be in the same order as used in the `CHALLENGE` command, below.|
-|`REVOKED`|`(challenger:)name, (player1:)name, <(player2:)name,(player3:)name>`|The challenger has revoked the challenge. A player can thus no longer accept or deny a challenge.|
+|`CHALLENGED`|`(challenger:)name, <(player1:)name,(player2:)name>`|The player has been challenged by the challenger. The arguments are the names of everyone in the proposed game, except the challenger (as he is already the first argument). |
+|`DENIED`|`(challenger:)name, (denier:)name`|The player does not want to play a game, |
+|`REVOKED`|`(challenger:)name`|The challenger has revoked the challenge. A player can thus no longer accept or deny that challenge.|
 
 
 The following are messages which are sent by the **client to the server**. 
@@ -128,16 +161,15 @@ The following are messages which are sent by the **client to the server**.
 | -------- | -------- | -------- |
 |`LEAVELOBBY`||A player wants to leave the lobby. All challenges from the player will be revoked. (it is up to you if you decide this should also  mean that the player is `LOOKINGFORGAME`).  |
 |`JOINLOBBY`||A player wants to join a lobby, the player is no longer `LOOKINGFORGAME`. Once the player has joined the server, they will be updated on the players that are also in the lobby. They can then challenge these players.  |
-|`CHALLENGE`|`(player1:)name, <(player2:)name,(player3:)name>`|A player wants to challenge another specific player in the lobby to play a game with. (maximum of 3 other people that you can play with) A challenge can be revoked by sending `REVOKE` |
-|`ACCEPT`|`(challenger:)name`|The player accepts the challenge to play with the other players. The argument is the name of the player that has sent the challenge request. If the player joins a game, they should be removed from the lobby. |
-|`DENY`|`(challenger:)name`|The player denies the challenge to play with the other players. The argument is the name of the player that has sent the challenge request. If multiple players are challenged, and one of them denies, the player |
-|`REVOKE`|`(player1:)name, <(player2:)name,(player3:)name>`|The player revokes the challenge to play with the other players. The arguments should be in the same order as used in the `CHALLENGE` command. |
+|`CHALLENGE`|`(player1:)name, <(player2:)name,(player3:)name>`|A player wants to challenge another specific set of players in the lobby to play a game with. (maximum of 3 other people that you can play with) A challenge can be revoked by sending `REVOKE`. A player can only have **one** outgoing challenge at a time. If the player wants to challenge someone else, they should `REVOKE` their challenge first. If that does not happen, the server should send an `ERROR`|
+|`ACCEPT`|`(challenger:)name`|The player accepts the challenge to play with the other players. The argument is the name of the player that has sent the challenge request. If the player joins a game, they should be removed from the lobby. If a player accepts or denies a request which is already revoked, they will get an `ERROR`. |
+|`DENY`|`(challenger:)name`|The player denies the challenge to play with the other players. The argument is the name of the player that has sent the challenge request. If multiple players are challenged, and one of them denies, the server should send the `DENIED` message to everyone. The challenge is then denied for everyone. If a player accepts or denies a request which is already revoked, they will get an `ERROR`.|
+|`REVOKE`||The player revokes the current challenge to play with the other players. If a player does not have an outgoing challenge request, they will get an `ERROR`. |
 
-**We should determine what happens if one of the player denies, does that mean that the whole group gets denied, or they could still play with the people that did accept?**
 
-**It would make it easier and cleaner if a person could only have one open challenge, for example when using `REVOKE` and `DENIED`**
+*Note:* if multiple players are challenged and one of them accepts, but while waiting for others to accept, he decides that he does not want to play, he can still send the deny message. The game will then be denied for everyone. 
 
-WIP: Leaderboard Protocol
+Leaderboard Protocol
 ===
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Leaderboard extension.
@@ -159,9 +191,8 @@ The following are messages which are sent by the **client to the server**.
  - `dailyavg` will return the average score over all games on that day
  - `dailybest` will return the best score over all games of that day
    
-**There is also an item for the team results. It was unclear whether this had to be implemented, as there aren't any teams in the game.**
-
-WIP: Security Protocol
+   
+Security Protocol
 ===
 
 The following are messages which are sent by the **server to the client**. Your client should handle these incoming messages if you wish to implement the Security extension.
@@ -169,13 +200,15 @@ The following are messages which are sent by the **server to the client**. Your 
 | Command | Arguments | Description |
 | -------- | -------- | -------- |
 |`LOGINVALID`||If the password was correct, otherwise an `ERROR` is sent.|
+|`SALT`|`salt`|A random generated string of letters and/or numbers. To be determined by you. Can be anything from `apple`,`iLoveApple` to `PCsAreTh3B35t`. The salt's length has to be 7-15 characters. |
 
 The following are messages which are sent by the **client to the server**. 
 
 | Command | Arguments | Description |
 | -------- | -------- | -------- |
-|`LOGIN`|`name, password`|Password is encrypted with SHA256 with UTF8 as the charset. The resulting bytes are then encoded using Base64. This resembles the password.
+|`LOGIN`|`name`|The username of the player that wants to log in. Server will respond with a `SALT`
+|`PASSWORD`|`password`|Password is encrypted with SHA256 with UTF8 as the charset. Appended after that string will be the salt from the `SALT` command. That will then be encrypted again with SHA256. The resulting bytes are then encoded using Base64. This resembles the password. To summarise: `BASE64(SHA256(SHA256(plaintext_password)+salt))` 
 
+The server only has to store the result of `SHA256(plaintext_password)`, as this is more secure than storing plaintext passwords.
 
-**I suggest that we revise this protocol a bit during the next session, as it sounds too simple to get all bonus points**
-For example we might be able to add a `REGISTER` command, as this is more user friendly than a text file on the server. We could also let the server send a salt/challenge over the network, which the client then encrypts with the SHA256 hash, in order to make sure that the password can't be easily recovered (hash differs every time). We could also make a `GETAUTHENTICATEDUSERS` command, which shows us all authenticated users.
+**yes this would not be secure enough for a large game, but it is more than sufficient for a game of this scale**

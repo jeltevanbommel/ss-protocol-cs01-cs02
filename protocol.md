@@ -2,11 +2,13 @@
 Protocol CS1/CS2 (v2.0)
 ==
 
-Current version: 2.0
-**PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL** 
+Current version: 3.0
+**PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL AGAIN** 
 
 If anything is changed, the version number will be incremented. Please write this version number down, so you know whether your server/client supports everything. All changes will be noted within the changelog:
 
+    CHANGES V3.0:
+    	The YOURTURN command has been changed to playerturn with a name. This allows for the client and server to have the same state of the game.
     CHANGES V2.0:
 	    The rotation diagram has been updated, to properly reflect what we decided upon during the protocol session. 
 	    
@@ -93,7 +95,7 @@ These are messages which are sent by the server to the client. Your client shoul
 |`WAIT`||Once a player has announced that they are looking for a game, the server tells the client that they should wait for a game to be available. Once a game is found, the `STARTGAME` command is sent by the server.|
 |`STARTGAME`|`(opponent names: ) player1,<player2,player3> ` |A game is found. The arguments are the names of the opponents. Which can be one name, or multiple.|
 |`PLAYERTILES`|`(player name:) player, (tiles:) RGB,<RGB,RGB,RGB>` |The tiles that the player posesses. This can be 4 tiles or less: at the end of the game there are no more tiles to grab from the bag.|
-|`YOURTURN`| |The player that receives this commands may make the next move. It is their turn to play.|
+|`PLAYERTURN`| `(player name:) player`|All players receive this command. The player that matches the name in the argument may make the next move. It is their turn to play.|
 |`MOVEMADE`|`(tile colors:) RGB, (rotation:) <0,120,240>, (fieldindex:) <0-35>, (player name:) name` |Acknowledges that a move was made succesfully and broadcasts that to other players in the game. The name of the player that made the move is appended to the end.|
 |`GAMEOVER`|`(name:) name,(points:) integer, (name:) name, (points:) integer, <..>` |The game has ended. The name of each player is sent, after that a comma and then the amount of points that player has gotten. This is not sorted. |
 

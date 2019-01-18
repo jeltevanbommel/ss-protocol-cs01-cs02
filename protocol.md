@@ -1,5 +1,5 @@
 
-Protocol CS1/CS2 (v2.0)
+Protocol CS1/CS2 (v3.0)
 ==
 
 Current version: 3.0

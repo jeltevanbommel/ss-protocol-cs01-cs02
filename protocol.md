@@ -71,7 +71,7 @@ Color and rotation encoding
 ===
 ![encoding](encoding.png)
 
-** It has been unclear which tiles the TileBag should contain. You should follow the rules as they are provided on canvas.**
+**It has been unclear which tiles the TileBag should contain. You should follow the rules as they are provided on canvas.**
 
    	 • All red, all blue, all green, all yellow, all purple (6 points each).
 	• 2 x red and yellow, 2 x red and purple, 2 x blue and red, 2 x blue and purple, 2 x green

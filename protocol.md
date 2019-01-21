@@ -1,12 +1,18 @@
 
-Protocol CS1/CS2 (v3.0)
+Protocol CS1/CS2 (v3.5)
 ==
 
-Current version: 3.0
-**PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL AGAIN** 
+Current version: 3.5
+**PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL AGAIN AGAIN** 
 
 If anything is changed, the version number will be incremented. Please write this version number down, so you know whether your server/client supports everything. All changes will be noted within the changelog:
 
+    CHANGES V3.5:
+    	As the order of turns was unclear, a minor change has been made to the STARTGAME command. The STARTGAME will now also list the player's own name. Which makes it easier to see what the order of turns will be. Turns go clockwise from player1 -> player2 -> player3 -> player4 -> player1. (if player1 is the starting player.). The starting player will be determined using the rules provided on canvas.
+		The GETCHATPLAYERS command has been added for the chat protocol.
+		A clarification about the TileBag was added beneath the rotation/color encoding section.
+	
+	
     CHANGES V3.0:
     	The YOURTURN command has been changed to playerturn with a name. This allows for the client and server to have the same state of the game.
     CHANGES V2.0:
@@ -65,6 +71,25 @@ Color and rotation encoding
 ===
 ![encoding](encoding.png)
 
+** It has been unclear which tiles the TileBag should contain. You should follow the rules as they are provided on canvas.**
+
+   	 • All red, all blue, all green, all yellow, all purple (6 points each).
+	• 2 x red and yellow, 2 x red and purple, 2 x blue and red, 2 x blue and purple, 2 x green
+	and red, 2 x green and blue, 2 x yellow and green, 2 x yellow and blue, 2 x purple and
+	yellow, 2x purple and green (5 points each)
+	• 2 x red and blue, 2 x red and green, 2 x blue and green, 2 x blue and yellow, 2 x green
+	and yellow, 2 x green and purple, 2 x yellow and red, 2 x yellow and purple, 2 x
+	purple and red, 2 x purple and blue (4 points each).
+	• [yellow, blue, purple], [red, green, yellow], [blue, green, purple], [green, red, blue] (3
+	points each)
+	• [blue, red, purple], [yellow, purple, red], [yellow, purple, green] (2 points each)
+	• [green, red, purple], [blue, yellow, green], [red, yellow, blue] (1 point each)
+	• All white (joker, 1 point)
+	
+Which means that the only valid tiles in the system are: 
+
+   	RRR, BBB,GGG,YYY,PPP,RRY,RRP,BBR,BBP,GGR,GGB,YYG,YYB,PPY,PPG,RRB,RRG,BBG,BBY,GGY,GGP,YYR,YYP,PPR,PPB,YBP,RGY,BGP,GRB,BRP,YPR,YPG,GRP,BYG,RYB,WWW.
+
 Core Protocol: Client
 ===
 These are messages which are sent by the client to the server. The server should handle these incoming messages.
@@ -93,7 +118,7 @@ These are messages which are sent by the server to the client. Your client shoul
 |`ERROR`|`error_code`| If an error happens the server should send this to the client. The error codes are described below. |
 |`HELLO`|`name ` |A player has set their name succesfully. We acknowledge this by sending `HELLO` followed by the name. Make sure to check for any invalid characters in names, such as a comma (which will introduce bugs in commands where the player name is used. *-thanks to Jurre for this addition*)|
 |`WAIT`||Once a player has announced that they are looking for a game, the server tells the client that they should wait for a game to be available. Once a game is found, the `STARTGAME` command is sent by the server.|
-|`STARTGAME`|`(opponent names: ) player1,<player2,player3> ` |A game is found. The arguments are the names of the opponents. Which can be one name, or multiple.|
+|`STARTGAME`|`(names: ) player1,player2,<player3,player4> ` |A game is found. The arguments are the names of the opponents and the player's own name. This order is used to determine the next player that can make a turn (e.g. player2->player3->player4->player1->player2).|
 |`PLAYERTILES`|`(player name:) player, (tiles:) RGB,<RGB,RGB,RGB>` |The tiles that the player posesses. This can be 4 tiles or less: at the end of the game there are no more tiles to grab from the bag.|
 |`PLAYERTURN`| `(player name:) player`|All players receive this command. The player that matches the name in the argument may make the next move. It is their turn to play.|
 |`MOVEMADE`|`(tile colors:) RGB, (rotation:) <0,120,240>, (fieldindex:) <0-35>, (player name:) name` |Acknowledges that a move was made succesfully and broadcasts that to other players in the game. The name of the player that made the move is appended to the end.|
@@ -143,6 +168,7 @@ The following are messages which are sent by the **client to the server**.
 | Command | Arguments | Description |
 | -------- | -------- | -------- |
 |`SENDMESSAGE`|`(message:)dGVzdA==,<(to:)name>`|A player wants to send a chat message to all players that are currently in the game. If this is the case, no name has to be specified. If the player wants to send a message specifically to one person, the name of that player has to be specified.   |
+|`GETCHATPLAYERS`|`names`|Will return the names of the players in the game that support chat.   |
 
 Challenge Protocol
 ===

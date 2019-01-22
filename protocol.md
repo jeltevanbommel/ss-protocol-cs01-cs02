@@ -162,6 +162,7 @@ The following are messages which are sent by the **server to the client**. Your 
 | Command | Arguments | Description |
 | -------- | -------- | -------- |
 |`INCOMINGMESSAGE`|`(message:)dGVzdA==,(from:)name`|A message has been sent to the player, this message is Base64 encoded. (Example: `test` -> `dGVzdA==`). The server checks whether this message was correctly encoded by decoding it once (and seeing if that results in errors). If it is incorrect it should give an `ERROR`. The name of the player that sent the message is appended to the end.|
+|`CHATPLAYERS`|`names`|The names of the players in the game that support chat.   |
 
 The following are messages which are sent by the **client to the server**. 
 

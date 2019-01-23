@@ -1,12 +1,14 @@
 
-Protocol CS1/CS2 (v3.5)
+Protocol CS1/CS2 (v3.6)
 ==
 
-Current version: 3.5
+Current version: 3.6
 **PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL AGAIN AGAIN** 
 
 If anything is changed, the version number will be incremented. Please write this version number down, so you know whether your server/client supports everything. All changes will be noted within the changelog:
 
+    CHANGES V3.6: 
+    	made a mistanke at getchatplayers. Wrong argument.
     CHANGES V3.5:
     	As the order of turns was unclear, a minor change has been made to the STARTGAME command. The STARTGAME will now also list the player's own name. Which makes it easier to see what the order of turns will be. Turns go clockwise from player1 -> player2 -> player3 -> player4 -> player1. (if player1 is the starting player.). The starting player will be determined using the rules provided on canvas.
 		The GETCHATPLAYERS command has been added for the chat protocol.
@@ -169,7 +171,7 @@ The following are messages which are sent by the **client to the server**.
 | Command | Arguments | Description |
 | -------- | -------- | -------- |
 |`SENDMESSAGE`|`(message:)dGVzdA==,<(to:)name>`|A player wants to send a chat message to all players that are currently in the game. If this is the case, no name has to be specified. If the player wants to send a message specifically to one person, the name of that player has to be specified.   |
-|`GETCHATPLAYERS`|`names`|Will return the names of the players in the game that support chat.   |
+|`GETCHATPLAYERS`||Will return the names of the players in the game that support chat.   |
 
 Challenge Protocol
 ===

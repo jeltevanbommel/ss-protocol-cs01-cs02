@@ -1,12 +1,13 @@
 
-Protocol CS1/CS2 (v3.6)
+Protocol CS1/CS2 (v3.7)
 ==
 
-Current version: 3.6
-**PLEASE NOTE THAT THERE HAS BEEN A CHANGE TO THE CORE PROTOCOL AGAIN AGAIN** 
+Current version: 3.7
 
 If anything is changed, the version number will be incremented. Please write this version number down, so you know whether your server/client supports everything. All changes will be noted within the changelog:
 
+    CHANGES V3.7: 
+    	Some additional error codes were added for the chat functionality, since some seemed to be missing. (see codes 17 & 18)
     CHANGES V3.6: 
     	made a mistanke at getchatplayers. Wrong argument.
     CHANGES V3.5:
@@ -143,6 +144,8 @@ CORE:
 
 CHAT:
 10 Invalid chat message, not correctly encoded.
+17 The player you tried sending the message to is not in your game.
+18 The player you tried sending the message to does not support chat.
 
 LOGIN:
 11 Incorrect password.
